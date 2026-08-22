@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ClassMind AI</title>
 
     <link rel="stylesheet" href="style.css">
@@ -11,40 +12,36 @@
 
 <body>
 
-    <!-- Navigation -->
     <nav>
         <div class="logo">ClassMind AI</div>
 
         <div class="nav-links">
             <a href="#home">Home</a>
-            <a href="#lesson">Lesson</a>
-            <a href="#notes">Notes</a>
-            <a href="#quiz">Quiz</a>
-            <a href="#flashcards">Flashcards</a>
+            <a href="#create">Create</a>
+            <a href="#results">Study Material</a>
         </div>
     </nav>
 
 
-    <!-- Home -->
     <section id="home" class="hero">
 
         <div class="hero-content">
 
-            <p class="small-title">AI-POWERED LEARNING</p>
+            <p class="small-title">AI-POWERED LEARNING ASSISTANT</p>
 
             <h1>
-                Turn every lesson into
+                Turn every class into
                 <span>smarter revision.</span>
             </h1>
 
             <p class="description">
-                ClassMind AI transforms classroom lessons into
-                notes, quizzes and flashcards to make revision
-                faster and more personalized.
+                Record your lesson or paste your class content.
+                ClassMind AI converts it into organized notes,
+                quizzes and flashcards.
             </p>
 
-            <a href="#lesson" class="main-button">
-                Start Learning
+            <a href="#create" class="main-button">
+                Get Started
             </a>
 
         </div>
@@ -52,62 +49,113 @@
     </section>
 
 
-    <!-- Lesson Input -->
-    <section id="lesson" class="section">
+    <section id="create" class="section">
 
-        <h2>Add Today's Lesson</h2>
+        <h2>Create Study Material</h2>
 
         <p>
-            Paste the content from your classroom lesson below.
+            Choose how you want to provide your lesson.
         </p>
 
-        <textarea
-            id="lessonInput"
-            placeholder="Paste your teacher's lesson here...">
-        </textarea>
 
-        <button onclick="generateMaterial()">
-            Generate Study Material
-        </button>
+        <div class="input-options">
+
+            <!-- TEXT OPTION -->
+
+            <div class="input-card">
+
+                <h3>Paste Lesson</h3>
+
+                <p>
+                    Paste your teacher's notes or lesson transcript.
+                </p>
+
+                <textarea
+                    id="lessonInput"
+                    placeholder="Paste your lesson here...">
+                </textarea>
+
+                <button onclick="generateFromText()">
+                    Generate
+                </button>
+
+            </div>
+
+
+            <!-- AUDIO OPTION -->
+
+            <div class="input-card">
+
+                <h3>Record Class</h3>
+
+                <p>
+                    Record the lesson and convert the speech
+                    into text.
+                </p>
+
+                <button id="recordButton" onclick="toggleRecording()">
+                    🎙️ Start Recording
+                </button>
+
+                <div id="recordingStatus">
+                    Ready to record
+                </div>
+
+                <div id="transcriptBox">
+
+                    <h4>Live Transcript</h4>
+
+                    <p id="transcript">
+                        Your recorded speech will appear here...
+                    </p>
+
+                </div>
+
+                <button onclick="generateFromAudio()">
+                    Generate from Recording
+                </button>
+
+            </div>
+
+        </div>
 
     </section>
 
 
-    <!-- Results -->
+    <!-- RESULTS -->
+
     <section id="results" class="section hidden">
 
-        <h2>Your Study Material</h2>
+        <h2>AI Study Material</h2>
+
 
         <div class="grid">
 
-            <!-- Notes -->
-            <div id="notes" class="card">
+            <div class="card">
 
-                <h3>AI Notes</h3>
+                <h3>📚 AI Notes</h3>
 
                 <div id="notesContent">
-                    Your generated notes will appear here.
+                    Your notes will appear here.
                 </div>
 
             </div>
 
 
-            <!-- Quiz -->
-            <div id="quiz" class="card">
+            <div class="card">
 
-                <h3>AI Quiz</h3>
+                <h3>❓ AI Quiz</h3>
 
                 <div id="quizContent">
-                    Your generated quiz will appear here.
+                    Your quiz will appear here.
                 </div>
 
             </div>
 
 
-            <!-- Flashcards -->
-            <div id="flashcards" class="card">
+            <div class="card">
 
-                <h3>Flashcards</h3>
+                <h3>🗂️ Flashcards</h3>
 
                 <div id="flashcardContent">
                     Your flashcards will appear here.
@@ -120,22 +168,23 @@
     </section>
 
 
-    <!-- Chatbot -->
+    <!-- CHATBOT -->
+
     <section class="section chatbot">
 
         <h2>Ask ClassMind</h2>
 
         <p>
-            Ask questions about what you learned.
+            Ask questions about your lesson.
         </p>
 
         <input
             id="question"
             type="text"
-            placeholder="Ask a question...">
+            placeholder="Ask something about your lesson...">
 
         <button onclick="askQuestion()">
-            Ask AI
+            Ask
         </button>
 
         <div id="chatAnswer"></div>
@@ -143,15 +192,12 @@
     </section>
 
 
-    <!-- Footer -->
     <footer>
 
-        <p>
-            ClassMind AI © 2026
-        </p>
+        <p>ClassMind AI © 2026</p>
 
         <p>
-            Personalized learning through artificial intelligence.
+            AI-powered personalized learning assistant.
         </p>
 
     </footer>
