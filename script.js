@@ -1,10 +1,12 @@
 let recognition;
 let isRecording = false;
 let finalTranscript = "";
+let timerInterval;
+let seconds = 0;
 
 
 /* =========================
-   TEXT INPUT
+   TEXT → STUDY MATERIAL
 ========================= */
 
 function generateFromText() {
@@ -13,9 +15,7 @@ function generateFromText() {
         document.getElementById("lessonInput").value.trim();
 
     if (lesson === "") {
-
         alert("Please paste your lesson first.");
-
         return;
     }
 
@@ -36,7 +36,7 @@ function setupSpeechRecognition() {
     if (!SpeechRecognition) {
 
         alert(
-            "Speech recognition is not supported in this browser. Try Google Chrome."
+            "Speech recognition is not supported in this browser. Please use Google Chrome."
         );
 
         return false;
@@ -45,9 +45,7 @@ function setupSpeechRecognition() {
     recognition = new SpeechRecognition();
 
     recognition.continuous = true;
-
     recognition.interimResults = true;
-
     recognition.lang = "en-US";
 
 
@@ -71,41 +69,37 @@ function setupSpeechRecognition() {
             } else {
 
                 interimTranscript += transcript;
-
             }
-
         }
-
 
         document.getElementById("transcript").innerText =
             finalTranscript + interimTranscript;
-
     };
 
 
     recognition.onerror = function(event) {
 
-        console.log("Speech recognition error:", event.error);
-
+        console.log(
+            "Speech recognition error:",
+            event.error
+        );
     };
 
 
     recognition.onend = function() {
 
         if (isRecording) {
-
             recognition.start();
-
         }
-
     };
+
 
     return true;
 }
 
 
 /* =========================
-   START / STOP RECORDING
+   RECORDING
 ========================= */
 
 function toggleRecording() {
@@ -118,12 +112,11 @@ function toggleRecording() {
         if (!ready) {
             return;
         }
-
     }
 
 
     const button =
-        document.getElementById("recordButton");
+        document.getElementById("recordCircle");
 
     const status =
         document.getElementById("recordingStatus");
@@ -133,6 +126,11 @@ function toggleRecording() {
 
         finalTranscript = "";
 
+        seconds = 0;
+
+        document.getElementById("timer").innerText =
+            "00:00";
+
         document.getElementById("transcript").innerText =
             "Listening...";
 
@@ -141,11 +139,13 @@ function toggleRecording() {
 
         isRecording = true;
 
-        button.innerText =
-            "⏹️ Stop Recording";
+        button.classList.add("recording");
 
         status.innerText =
             "🔴 Recording class...";
+
+
+        startTimer();
 
     } else {
 
@@ -153,19 +153,50 @@ function toggleRecording() {
 
         isRecording = false;
 
-        button.innerText =
-            "🎙️ Start Recording";
+        button.classList.remove("recording");
 
         status.innerText =
             "Recording stopped.";
 
+        stopTimer();
     }
-
 }
 
 
 /* =========================
-   GENERATE FROM AUDIO
+   TIMER
+========================= */
+
+function startTimer() {
+
+    timerInterval = setInterval(function() {
+
+        seconds++;
+
+        const minutes =
+            Math.floor(seconds / 60);
+
+        const remainingSeconds =
+            seconds % 60;
+
+        document.getElementById("timer").innerText =
+
+            String(minutes).padStart(2, "0")
+            + ":" +
+            String(remainingSeconds).padStart(2, "0");
+
+    }, 1000);
+}
+
+
+function stopTimer() {
+
+    clearInterval(timerInterval);
+}
+
+
+/* =========================
+   AUDIO → STUDY MATERIAL
 ========================= */
 
 function generateFromAudio() {
@@ -173,40 +204,51 @@ function generateFromAudio() {
     const transcript =
         finalTranscript.trim();
 
-
     if (transcript === "") {
 
         alert(
-            "Record some audio before generating study material."
+            "Record your class before generating the study pack."
         );
 
         return;
     }
 
-
     generateStudyMaterial(transcript);
-
 }
 
 
 /* =========================
-   STUDY MATERIAL
+   GENERATE STUDY PACK
 ========================= */
 
 function generateStudyMaterial(lesson) {
 
-    document
-        .getElementById("results")
-        .classList.remove("hidden");
+    const results =
+        document.getElementById("results");
+
+    results.classList.remove("hidden");
 
 
-    /* NOTES */
+    /*
+       Prototype version:
+       The transcript is displayed as the
+       source material.
+
+       Later we can connect this to an actual
+       AI API to automatically summarize it.
+    */
+
+
+    window.currentLesson = lesson;
+
 
     document.getElementById("notesContent").innerHTML = `
 
         <p>
-            <strong>Lesson Content</strong>
+            <strong>Lesson captured successfully.</strong>
         </p>
+
+        <br>
 
         <p>
             ${lesson}
@@ -215,26 +257,29 @@ function generateStudyMaterial(lesson) {
         <br>
 
         <p>
-            <strong>AI Summary</strong>
-        </p>
-
-        <p>
-            This lesson has been processed.
-            The full AI version will summarize the
-            important concepts and remove unnecessary
-            information.
+            Your AI-generated summary will appear
+            here when the AI backend is connected.
         </p>
 
     `;
 
 
-    /* QUIZ */
-
     document.getElementById("quizContent").innerHTML = `
 
         <p>
-            Which statement best describes the
-            main idea of the lesson?
+            Your quiz will be generated from
+            this lesson.
+        </p>
+
+        <br>
+
+        <p>
+            <strong>Sample question:</strong>
+        </p>
+
+        <p>
+            What is the main concept discussed
+            in this lesson?
         </p>
 
         <button onclick="answer('A')">
@@ -256,51 +301,53 @@ function generateStudyMaterial(lesson) {
     `;
 
 
-    /* FLASHCARDS */
-
     document.getElementById("flashcardContent").innerHTML = `
 
         <p>
-            <strong>Question</strong>
+            <strong>Flashcard</strong>
         </p>
 
+        <br>
+
         <p>
-            What is an important concept
+            What is one important idea
             from this lesson?
         </p>
 
-        <button onclick="showAnswer()">
-            Reveal Answer
+        <button onclick="showFlashcardAnswer()">
+            Reveal answer
         </button>
 
-        <p id="flashAnswer" class="hidden">
+        <p
+            id="flashcardAnswer"
+            class="hidden">
 
-            The answer will be generated by AI
-            from the lesson transcript.
+            The AI-generated answer will be
+            displayed here.
 
         </p>
 
     `;
 
 
-    document
-        .getElementById("results")
-        .scrollIntoView({
-            behavior: "smooth"
-        });
-
+    results.scrollIntoView({
+        behavior: "smooth"
+    });
 }
 
 
 /* =========================
-   FLASHCARD
+   NOTES
 ========================= */
 
-function showAnswer() {
+function showNotes() {
 
-    document
-        .getElementById("flashAnswer")
-        .classList.toggle("hidden");
+    const notes =
+        document.getElementById("notesContent");
+
+    notes.scrollIntoView({
+        behavior: "smooth"
+    });
 
 }
 
@@ -308,6 +355,18 @@ function showAnswer() {
 /* =========================
    QUIZ
 ========================= */
+
+function showQuiz() {
+
+    const quiz =
+        document.getElementById("quizContent");
+
+    quiz.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
 
 function answer(option) {
 
@@ -319,7 +378,32 @@ function answer(option) {
 
 
 /* =========================
-   CHATBOT
+   FLASHCARDS
+========================= */
+
+function showFlashcards() {
+
+    const flashcards =
+        document.getElementById("flashcardContent");
+
+    flashcards.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+function showFlashcardAnswer() {
+
+    document
+        .getElementById("flashcardAnswer")
+        .classList.toggle("hidden");
+
+}
+
+
+/* =========================
+   AI CHAT
 ========================= */
 
 function askQuestion() {
@@ -336,7 +420,6 @@ function askQuestion() {
         alert("Please enter a question.");
 
         return;
-
     }
 
 
@@ -350,10 +433,10 @@ function askQuestion() {
 
         <p>
             Your question has been received.
-            The AI chatbot will answer using
-            the content of your lesson.
+            The AI will answer using the content
+            of your lesson once the AI backend
+            is connected.
         </p>
 
     `;
-
 }
